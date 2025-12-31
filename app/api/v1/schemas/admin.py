@@ -19,6 +19,7 @@ class DoctorResponse(BaseModel):
     user_id: UUID
     specialty: str
     consultation_fee: float
+    email: str
 
     class Config:
         orm_mode = True
@@ -34,6 +35,7 @@ class NurseResponse(BaseModel):
     id: UUID
     user_id: UUID
     department: Optional[str]
+    email: str
 
     class Config:
         orm_mode = True
@@ -49,6 +51,7 @@ class StaffResponse(BaseModel):
     id: UUID
     user_id: UUID
     department: Optional[str]
+    email: str
 
     class Config:
         orm_mode = True
@@ -79,3 +82,10 @@ class EmployeeResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class StaffUpdate(BaseModel):
+    department: Optional[str]
+
+class NurseUpdate(BaseModel):
+    department: Optional[str]
+

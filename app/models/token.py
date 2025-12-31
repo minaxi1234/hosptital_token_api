@@ -8,6 +8,7 @@ import enum
 
 class TokenStatus(str, enum.Enum):
     waiting = "waiting"
+    in_progress = "in_progress"
     completed = "completed"
 
 class Token(Base):

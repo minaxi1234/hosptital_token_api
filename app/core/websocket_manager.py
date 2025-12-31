@@ -1,34 +1,33 @@
 from fastapi import WebSocket
-from typing import List
+from typing import Set
 import json
 
 class WebSocketManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: Set[WebSocket] = set()
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections.add(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        self.active_connections.discard(websocket)
 
-    async def broadcast_message(self, message: dict):
-      print(f"🔄 WEBSOCKET: Starting broadcast to {len(self.active_connections)} connections")
-      
-      message_json = json.dumps(message)
-      print(f"🔄 WEBSOCKET: Message JSON: {message_json}")
-      
-      send_tasks = []
-      for connection in self.active_connections:
-          send_tasks.append(connection.send_text(message_json))
-      
-      if send_tasks:
-          import asyncio
-          try:
-              await asyncio.gather(*send_tasks, return_exceptions=True)
-              print("✅ WEBSOCKET: Broadcast completed successfully!")
-          except Exception as e:
-              print(f"❌ WEBSOCKET: Broadcast failed: {e}")
+    async def broadcast(self, event: dict):
+        if not self.active_connections:
+            return
 
+        message = json.dumps(event)
+        dead = []
+
+        for ws in self.active_connections:
+            try:
+                await ws.send_text(message)
+            except Exception:
+                dead.append(ws)
+
+        for ws in dead:
+            self.disconnect(ws)
+
+# 🔴 SINGLE INSTANCE — NEVER CREATE AGAIN
 websocket_manager = WebSocketManager()

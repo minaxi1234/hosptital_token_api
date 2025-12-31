@@ -1,8 +1,8 @@
-"""Add doctor nurse staff tables
+"""baseline schema
 
-Revision ID: b509161d5db6
-Revises: d7e1a61a6788
-Create Date: 2025-11-19 13:11:04.859887
+Revision ID: 4973b6fc7023
+Revises: 
+Create Date: 2025-12-31 18:21:36.300278
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b509161d5db6'
-down_revision: Union[str, Sequence[str], None] = 'd7e1a61a6788'
+revision: str = '4973b6fc7023'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

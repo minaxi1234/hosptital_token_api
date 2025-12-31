@@ -1,1 +1,30 @@
 python-3.12.0
+
+
+
+INFO:     127.0.0.1:63002 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61824 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64481 - "GET /auth/users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53286 - "POST /admin/nurse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64395 - "DELETE /auth/delete/c89aa808-8615-4509-99ed-24fce87194a9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54295 - "GET /auth/users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56700 - "POST /patients/ HTTP/1.1" 200 OK
+No cached doctors found
+✅ Doctors list cached successfully!
+INFO:     127.0.0.1:63883 - "GET /admin/employees HTTP/1.1" 200 OK
+🔄 DEBUG: Message to broadcast: {'type': 'new_token', 'token_id': 'd109ba11-043b-45dc-bcf3-5a2bece4188c', 'token_number': '2', 'doctor_id': 'd40fa6ca-19ae-407c-921e-23ca87745193', 'patient_name': 'hamsa', 'status': <TokenStatus.waiting: 'waiting'>}
+🔄 DEBUG: Active connections: 0
+🔄 WEBSOCKET: Starting broadcast to 0 connections
+🔄 WEBSOCKET: Message JSON: {"type": "new_token", "token_id": "d109ba11-043b-45dc-bcf3-5a2bece4188c", "token_number": "2", "doctor_id": "d40fa6ca-19ae-407c-921e-23ca87745193", "patient_name": "hamsa", "status": "waiting"}
+✅ DEBUG: WebSocket broadcast successful!
+INFO:     127.0.0.1:50163 - "POST /patients/token HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61101 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62564 - "GET /patients/tokens HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56487 - "PATCH /patients/tokens/f43c948d-42ec-4133-8d11-8bb592f79edf HTTP/1.1" 200 OK
+
+
+
+# routes/admin.py
+# Responsibility:
+# - Admin HTTP endpoints
+# - Delegates business logic to controllers where available

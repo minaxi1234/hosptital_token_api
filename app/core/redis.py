@@ -3,10 +3,11 @@ from app.core.config import settings
 
 # Create Redis connection
 redis_client = redis.Redis(
-    host='localhost',    # Redis server address
-    port=6379,           # Default Redis port
-    db=0,                # Database number
-    decode_responses=True # Convert responses from bytes to strings
+    host='localhost',   
+    port=6379,           
+    db=0,            
+    decode_responses=True 
+    
 )
 
 def test_redis_connection():

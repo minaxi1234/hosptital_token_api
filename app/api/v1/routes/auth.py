@@ -5,6 +5,8 @@ from app.core.rbac import require_roles
 from app.core.security import create_access_token, create_refresh_token, decode_token
 from app.db.session import get_db
 
+from app.core.auth import get_current_user
+
 from app.models.role import Role
 from app.utils.hashing import hash_password
 
@@ -23,7 +25,7 @@ router = APIRouter(prefix='/auth', tags=["Auth"])
 async def create_user(
     data: UserCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_roles(["admin"])),
+    current_user: User = Depends(require_roles(["admin"]))
 ):
     # 1. Check duplicate email
     existing = db.query(User).filter(User.email == data.email).first()
@@ -121,10 +123,30 @@ def delete_user(
         raise HTTPException(404, "User not found")
 
     # Remove role relationships first (avoid orphan rows)
+    if user.doctor_profile:
+        db.delete(user.doctor_profile)
+        db.flush()  # Flush without committing
+    
+    # Delete nurse profile if exists
+    if user.nurse_profile:
+        db.delete(user.nurse_profile)
+        db.flush()
+    
+    # Delete staff profile if exists
+    if user.staff_profile:
+        db.delete(user.staff_profile)
+        db.flush()
+
+    # Remove role relationships first
     user.roles.clear()
-    db.commit()
+    db.flush()
+
 
     db.delete(user)
     db.commit()
 
     return {"message": "User deleted successfully"}
+
+@router.get("/me", response_model=UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
+    return UserResponse.from_orm(current_user)

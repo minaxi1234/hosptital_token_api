@@ -14,3 +14,4 @@ class Patient(Base):
     age = Column(Integer, nullable=False)
 
     tokens = relationship("Token", back_populates="patient")
+    

@@ -2,6 +2,7 @@ from typing import List
 from fastapi import Depends, HTTPException
 from app.core.auth import get_current_user
 from app.models.user import User
+from uuid import UUID
 
 def require_roles(required_roles: List[str]):
     def role_checker(current_user: User = Depends(get_current_user)):
@@ -13,3 +14,5 @@ def require_roles(required_roles: List[str]):
         return current_user
 
     return role_checker  
+
+   

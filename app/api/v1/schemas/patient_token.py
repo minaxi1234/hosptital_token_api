@@ -24,11 +24,21 @@ class PatientRead(BaseModel):
     class Config:
         orm_mode = True
 
+class PatientInToken(BaseModel):
+    id: UUID
+    name: str
+    email: Optional[EmailStr]
+    phone: Optional[str]
+
+    class Config:
+        orm_mode = True
+
 # -------------------------------
 # Token Schemas
 # -------------------------------
 class TokenStatus(str, Enum):
     waiting = "waiting"
+    in_progress = "in_progress"
     completed = "completed"
 
 class TokenCreate(BaseModel):
@@ -42,6 +52,7 @@ class TokenRead(BaseModel):
     doctor_id: UUID
     status: TokenStatus
     created_at: datetime
+    patient: Optional[PatientInToken]
 
     class Config:
         orm_mode = True

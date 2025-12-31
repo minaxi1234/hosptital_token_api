@@ -39,14 +39,14 @@ def decode_token(token: str):
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except JWTError:
-        return None
+        raise
 
 
-def verify_token(token: str):
-    """
-    Returns payload if token is valid, else None.
-    routers will use this for role protection later.
-    """
-    payload = decode_token(token)
-    return payload
+# def verify_token(token: str):
+#     """
+#     Returns payload if token is valid, else None.
+#     routers will use this for role protection later.
+#     """
+#     payload = decode_token(token)
+#     return payload
 

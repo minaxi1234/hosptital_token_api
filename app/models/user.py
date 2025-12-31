@@ -30,6 +30,7 @@ class User(Base):
   doctor_profile = relationship("Doctor", back_populates="user", uselist=False)
   nurse_profile = relationship("Nurse", back_populates="user", uselist=False)
   staff_profile = relationship("Staff", back_populates="user", uselist=False)
+  
 
   def __repr__(self) -> str:
     return f"<Uset id={self.id} email = {self.email}>"
