@@ -70,6 +70,9 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user:
         raise HTTPException(status_code=400, detail="Invalid email or password")
+    
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail = "User is inactive")
 
     # 2. Verify password using Argon2
     if not verify_password(payload.password, user.hashed_password):
@@ -87,7 +90,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/refresh", response_model=TokenResponse)
-def refresh_token(data: dict = Body(...)):
+def refresh_token(data: dict = Body(...),db : Session = Depends(get_db)):
     refresh_token = data.get("refresh_token")
     if not refresh_token:
         raise HTTPException(status_code=400, detail="Refresh token required")
@@ -95,8 +98,17 @@ def refresh_token(data: dict = Body(...)):
     try:
         payload = decode_token(refresh_token)
         user_id = payload.get("user_id")
+        
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="User inactive or deleted"
+        )
+
 
     access_token = create_access_token({"user_id": user_id})
     return {"access_token": access_token, "refresh_token": refresh_token}

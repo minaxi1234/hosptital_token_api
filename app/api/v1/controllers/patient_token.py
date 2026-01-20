@@ -3,6 +3,7 @@ import json
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.models.doctor import Doctor
 from app.models.user import User
@@ -57,7 +58,6 @@ def register_patient(patient_in: PatientCreate, db: Session = Depends(get_db), c
 # 2️⃣ Generate Token
 # -------------------------------
 @router.post("/token", response_model=TokenRead)
-# Only staff/admin can issue tokens
 async def create_token(data: TokenCreate, db: Session = Depends(get_db), current_user = Depends(require_roles(["staff", "admin"]))):
     # Check doctor exists
     doctor = db.query(Doctor).filter(Doctor.id == data.doctor_id).first()
@@ -71,23 +71,31 @@ async def create_token(data: TokenCreate, db: Session = Depends(get_db), current
 
     # Generate next token number for this doctor
     today = datetime.utcnow().date()
-    last_token = db.query(Token).filter(Token.doctor_id == doctor.id, Token.created_at >= today).order_by(Token.created_at.desc()).first()
-    next_number = 1
-    if last_token:
-        try:
-            next_number = int(last_token.token_number) + 1
-        except ValueError:
-            next_number = 1  # fallback if token_number is not numeric
 
-    token = Token(
-        token_number=str(next_number),
-        patient_id=patient.id,
-        doctor_id=doctor.id,
-        status=TokenStatus.waiting
-    )
-    db.add(token)
-    db.commit()
-    db.refresh(token)
+    with db.begin():
+        last_token = (
+            db.query(Token)
+            .filter(
+                Token.doctor_id == doctor.id,
+                Token.created_at >= today
+            )
+            .with_for_update()
+            .order_by(Token.created_at.desc())
+            .first()
+        )
+
+        next_number = int(last_token.token_number) + 1 if last_token else 1
+
+        token = Token(
+            token_number=str(next_number),
+            patient_id=patient.id,
+            doctor_id=doctor.id,
+            status=TokenStatus.waiting
+        )
+        db.add(token)
+        db.flush()  # token.id guaranteed here
+
+
  
     try:
         redis_client.rpush(
@@ -145,12 +153,21 @@ async def update_token_status(
     ).first()
     if not token:
         raise HTTPException(status_code=404, detail="Token not found")
+    allowed_transitions = {
+        TokenStatus.waiting: [TokenStatus.in_progress],
+        TokenStatus.in_progress: [TokenStatus.completed],
+    }
+    if update.status not in allowed_transitions.get(token.status,[]):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid token status transition"
+        )
 
     token.status = update.status
     db.commit()
     db.refresh(token)
 
-    redis_key = f"token:{token.doctor_id}"
+    redis_key = f"doctor:{token.doctor_id}:current_token"
 
     redis_client.set(
         redis_key,

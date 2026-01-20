@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-
+from app.core.cache import invalidate_doctors_cache
 from app.db.session import get_db
 from app.api.v1.controllers.admin_controller import (
     add_doctor, get_all_doctors, update_doctor,
@@ -69,6 +69,8 @@ def delete_doctor(
 
     db.delete(doctor)
     db.commit()
+
+    
 
     return {"message": "Doctor deleted successfully"}
 
