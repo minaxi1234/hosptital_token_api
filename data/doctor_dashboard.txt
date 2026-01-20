@@ -1,0 +1,5 @@
+Doctors log into their dashboard to view assigned tokens for the day.
+
+Each token has a start and complete option.
+When a doctor starts consultation, the token status changes to 'Now Serving'.
+After consultation is completed, the token is marked as completed.

@@ -7,9 +7,11 @@ import {
   fetchTodayTokens,
 } from "../api/staff";
 import { connectWebSocket, addWebSocketListener, removeWebSocketListener } from "../api/websocket";
-
+import { useNavigate } from "react-router-dom";
 
 export default function StaffDashboard() {
+
+  const navigate = useNavigate();
   // --------------------
   // STATE
   // --------------------
@@ -115,6 +117,12 @@ export default function StaffDashboard() {
           <p className="text-slate-500 mt-1">
             Manage patients and generate tokens for doctors
           </p>
+          <button
+      onClick={() => navigate("/assistant")}
+      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
+    >
+  Ask Assistant
+</button>
         </div>
 
         {/* Top Grid */}

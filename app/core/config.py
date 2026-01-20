@@ -8,8 +8,12 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str
     ADMIN_PASSWORD: str
 
-    # REDIS_HOST: str 
-    # REDIS_PORT: int 
+    # Redis settings
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_PASSWORD: str | None = None
+    REDIS_ENABLED: bool = True
 
     class Config:
         env_file = ".env"

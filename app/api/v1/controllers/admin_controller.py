@@ -1,13 +1,11 @@
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 from uuid import UUID
 
 from app.core.cache import  invalidate_doctors_cache
-from app.db.session import get_db
+
 from app.models.user import User
 from app.models.role import Role
-from app.models.user_role import user_roles_table
 from app.models.doctor import Doctor
 from app.models.nurse import Nurse
 from app.models.staff import Staff
@@ -17,7 +15,7 @@ from app.api.v1.schemas.admin import (
     DoctorCreate, DoctorUpdate, DoctorResponse,
     NurseCreate, NurseResponse, NurseUpdate,
     StaffCreate, StaffResponse,
-    SpecialtyCreate, SpecialtyResponse,
+    SpecialtyCreate, 
     EmployeeResponse, StaffUpdate
 )
 
@@ -63,7 +61,7 @@ def update_doctor(doctor_id: UUID, payload: DoctorUpdate, db: Session):
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
-    if payload.specialty:
+    if payload.specialty is not None:
         doctor.specialty = payload.specialty
     if payload.consultation_fee is not None:
         doctor.consultation_fee = payload.consultation_fee
@@ -72,6 +70,8 @@ def update_doctor(doctor_id: UUID, payload: DoctorUpdate, db: Session):
     db.refresh(doctor)
 
     user = db.query(User).filter(User.id == doctor.user_id).first()
+    
+    invalidate_doctors_cache()
 
     return DoctorResponse(
         id=doctor.id,

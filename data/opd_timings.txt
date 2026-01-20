@@ -1,0 +1,7 @@
+OPD services are available from Monday to Saturday.
+
+Morning OPD timings are from 9:00 AM to 1:00 PM.
+Evening OPD timings are from 4:00 PM to 8:00 PM.
+
+Doctors consult patients based on generated tokens during OPD hours.
+OPD services are usually closed on Sundays.

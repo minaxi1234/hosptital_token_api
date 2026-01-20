@@ -1,0 +1,8 @@
+Patients do not have user accounts in the system.
+
+Staff members register patients using basic information such as:
+- Patient name
+- Email address
+- Phone number
+
+Once registered, patients can be selected for token generation.

@@ -8,6 +8,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import RoleProtectedRoute from "./RoleProtectedRoute";
 import NurseDashboard from "../pages/NurseDashboard";
 import TokenDisplay from "../pages/TokenDisplay";
+import AssistantPage from "../pages/AssistantPage";
 
 export default function AppRouter() {
   return (
@@ -59,7 +60,10 @@ export default function AppRouter() {
         />
         <Route path="/display" element={<TokenDisplay />} />
 
-       
+    
+
+       <Route path="/assistant" element={<AssistantPage />} />
+
         <Route path="/unauthorized" element={<Unauthorized />} />
       </Routes>
     </BrowserRouter>

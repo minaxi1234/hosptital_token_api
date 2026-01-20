@@ -1,0 +1,7 @@
+The hospital system has three main user roles: admin, doctor, and staff.
+
+Admins can manage users, roles, departments, and specialties.
+Doctors can view and manage their assigned patient tokens.
+Staff members can register patients and generate tokens.
+
+Patients do not have login accounts in the system.

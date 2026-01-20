@@ -1,122 +1,213 @@
 # 🏥 Hospital Token Management System
 
-A production-ready FastAPI backend for hospital token management with real-time updates, role-based access control, and performance optimization.
+A **junior → mid-level industry-style project** built using **FastAPI + React** to manage walk-in (talk-in) patients in a hospital.
 
-## 🚀 Features
+This system allows staff to generate tokens for patients, doctors to manage token flow, and the public to see live token updates.
 
-- **🔐 JWT Authentication** with role-based access control (Admin, Doctor, Nurse, Staff)
-- **📱 Real-time Updates** via WebSocket for live token notifications
-- **⚡ Performance Optimization** with Redis caching
-- **🗄️ Database Management** with PostgreSQL and Alembic migrations
-- **🛡️ Production Security** with error handling, security headers, and input validation
-- **👥 Multi-role System** with granular permissions
+---
 
-## 🛠️ Tech Stack
+## 🚀 Project Purpose (Simple)
 
-- **Backend**: FastAPI, Python 3.12+
-- **Database**: PostgreSQL with SQLAlchemy ORM
-- **Cache & Message Broker**: Redis
-- **Authentication**: JWT tokens with Argon2 hashing
-- **Real-time**: WebSocket
-- **Migrations**: Alembic
-- **Containerization**: Docker
+In many hospitals:
 
-## 📁 Project Structure
+- Patients come without appointment
+- Staff gives them a token
+- Doctor calls patients one by one
+- Everyone wants **live updates**
 
-token-api/
-├── app/
-│ ├── api/v1/ # API routes and controllers
-│ ├── core/ # Core configurations (auth, security, Redis)
-│ ├── db/ # Database session and base setup
-│ ├── models/ # SQLAlchemy models (User, Doctor, Token, etc.)
-│ └── utils/ # Utilities (hashing, helpers)
-├── alembic/ # Database migrations
-├── scripts/ # Admin creation scripts
-└── tests/ # Test suite
+This project solves that problem using:
 
-## 🚀 Quick Start
+- REST APIs
+- JWT authentication
+- Role-based access control (RBAC)
+- WebSockets for live updates
+- Redis for performance
 
-### Prerequisites
+---
 
-- Python 3.8+
-- PostgreSQL
-- Redis
+## 🧑‍⚕️ User Roles
 
-### Installation & Setup
+| Role   | What they can do                          |
+| ------ | ----------------------------------------- |
+| Admin  | Create users, manage doctors/staff/nurses |
+| Staff  | Register patients, generate tokens        |
+| Doctor | View own tokens, update token status      |
+| Public | View today’s active tokens (no login)     |
 
-1. **Clone and setup environment**:
+---
 
-````bash
-git clone <your-repo-url>
-cd token-api
-python -m venv venv
+## 🛠 Tech Stack
 
-# Windows
-venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
+### Backend
 
-pip install -r requirements.txt
+- **FastAPI** (v0.104.x)
+- **PostgreSQL** (Database)
+- **SQLAlchemy ORM**
+- **JWT Authentication** (access + refresh)
+- **Redis** (cache + token queue)
+- **WebSocket** (real-time updates)
 
+### Frontend
 
+- **React (Vite)**
+- **Axios** (API calls)
+- **Context API** (Auth state)
+- **Role-based routing**
+- **Native WebSocket** (browser WebSocket API)
 
-2. **Environment configuration**:
-```bash
-cp .env.example .env
-# Edit .env with your database credentials and secrets
+---
 
-### Database Setup:
+## 📂 Backend Folder Structure (Overview)
 
-bash
-# Run migrations
-alembic upgrade head
+```
+app/
+├── main.py                 # App entry point
+├── api/v1/
+│   ├── routes/             # HTTP & WebSocket routes
+│   ├── controllers/        # Business logic (patient tokens)
+│   └── schemas/            # Pydantic request/response models
+├── core/                   # Auth, RBAC, Redis, WebSocket manager
+├── db/                     # DB session & base
+├── models/                 # SQLAlchemy models
+├── utils/                  # Helper utilities
+└── middlewares/            # (Optional)
+```
 
-# Create admin user
-python scripts/createadmin.py
+---
 
-### Start the Application:
+## 📂 Frontend Folder Structure (Overview)
 
-bash
-# Development
+```
+frontend/
+└── src/
+    ├── api/                # Axios & API services
+    ├── auth/               # Login pages
+    ├── context/            # Auth context
+    ├── pages/              # Dashboards
+    ├── router/             # Protected routes
+    ├── utils/              # Helpers
+    ├── App.jsx
+    └── main.jsx
+```
+
+---
+
+## 🔐 Authentication Flow
+
+1. User logs in
+2. Backend returns:
+
+   - Access Token
+   - Refresh Token
+
+3. Frontend stores tokens
+4. Access token sent in headers
+5. Backend validates user & role
+
+---
+
+## 🔑 Role-Based Access Control (RBAC)
+
+Implemented using:
+
+- JWT token
+- Role checking (`require_roles`)
+
+Example:
+
+- Staff cannot access doctor routes
+- Doctor cannot access admin routes
+
+---
+
+## 🎫 Token Management Flow
+
+1. Staff registers patient
+2. Staff generates token for doctor
+3. Token saved in database
+4. Token pushed to Redis queue
+5. WebSocket broadcasts event
+6. Frontend updates UI live
+
+Token statuses:
+
+- `waiting`
+- `in_progress`
+- `completed`
+
+---
+
+## 🔄 Real-Time Updates (WebSocket)
+
+- Backend keeps active WebSocket connections
+- Events broadcasted:
+
+  - TOKEN_CREATED
+  - TOKEN_STATUS_UPDATED
+
+- Frontend listens and updates UI instantly
+
+---
+
+## ⚡ Redis Usage
+
+Redis is used for:
+
+- Token queues per doctor
+- Caching doctors list
+- Fast temporary storage
+
+This improves performance and scalability.
+
+---
+
+## 🎯 Project Level
+
+✅ Junior → Mid-level industry project
+
+✔ Real-world problem
+✔ Clean backend structure
+✔ Secure authentication
+✔ Live updates
+
+---
+
+## 🧩 Future Improvements (Planned)
+
+- Better logging (instead of print)
+- API documentation
+- Testing
+- LLM + RAG integration (future)
+
+---
+
+## ▶️ How to Run (Basic)
+
+### Backend
+
+1. Create virtual environment
+2. Install dependencies
+3. Set environment variables
+4. Run:
+
+```
 uvicorn app.main:app --reload
+```
 
-# Production (with workers)
-uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8000
+### Frontend
 
-Once running, access the interactive documentation:
+1. Install dependencies
+2. Run:
 
-Swagger UI: http://localhost:8000/docs
+```
+npm run dev
+```
 
-👥 Roles & Permissions
-Role	Permissions
-Admin	Full system access, manage all users
-Doctor	View and update own tokens, update profile
-Nurse	Update own information
-Staff	Register patients, generate tokens
+---
 
-🔧 Key Endpoints
-- `POST /auth/login` - User authentication
-- `POST /patients/token` - Generate patient tokens
+## 📌 Important Note
 
-GET /patients/tokens - Doctor's token queue
+This README explains the project **as it exists now**.
+No files were removed or changed.
 
-POST /admin/doctor - Admin: Add doctors
-
-WS /ws/tokens - WebSocket for real-time updates
-````
-
-## 🚀 Deployment on Render
-
-1. **Push your code to GitHub**
-2. **Go to [Render.com](https://render.com)**
-3. **Click "New +" → "Web Service"**
-4. **Connect your GitHub repository**
-5. **Use these settings:**
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-6. **Add environment variables in Render dashboard:**
-   - `DATABASE_URL` - Your PostgreSQL connection string
-   - `SECRET_KEY` - Your JWT secret key
-   - `REDIS_URL` - Your Redis connection string (optional)
-
-Your API will be live at: `https://your-app-name.onrender.com`
+Next step: **File-by-file analysis without breaking anything**.

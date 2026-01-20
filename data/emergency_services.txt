@@ -1,0 +1,6 @@
+Emergency services are available 24 hours a day.
+
+Emergency patients do not follow the regular token order.
+Emergency cases are handled immediately by available doctors.
+
+Emergency services are available on Sundays and public holidays.

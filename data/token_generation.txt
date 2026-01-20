@@ -1,0 +1,7 @@
+The hospital uses a token-based system for patient consultations.
+
+Staff members generate tokens by selecting a registered patient and a doctor.
+Each token is assigned to a specific doctor.
+
+Tokens are created for the current day and shown in both staff and doctor dashboards.
+Tokens are served in the order they are generated.

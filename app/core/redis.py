@@ -1,5 +1,5 @@
 import redis
-from app.core.config import settings
+
 
 # Create Redis connection
 redis_client = redis.Redis(

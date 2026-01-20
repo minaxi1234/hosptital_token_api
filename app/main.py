@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.routes import auth,admin
+from app.api.v1.routes import auth,admin,assistant
 from app.api.v1.controllers.patient_token import router as patient_token_router
 from app.api.v1.routes import websocket
 from datetime import datetime
@@ -18,12 +18,17 @@ from app.core.exceptions import (
 )
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from app.assistant.service import AssistantService
+import app.assistant.state as assistant_state
 
 app = FastAPI(title="Hospital Token Management System")
 
 @app.on_event("startup")
 async def startup_event():
    test_redis_connection()
+   
+   assistant_state.assistant_service = AssistantService()
+
    db = SessionLocal()
    try:
        seed_roles(db)
@@ -54,6 +59,7 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 # Include routers
 app.include_router(auth.router)  # /auth endpoints
 app.include_router(admin.router)
+app.include_router(assistant.router)
 app.include_router(patient_token_router)  # /patients and /tokens endpoints
 app.include_router(websocket.router)
 

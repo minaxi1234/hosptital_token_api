@@ -1,0 +1,6 @@
+The system uses WebSocket connections for real-time token updates.
+
+When a doctor starts a consultation, the token is highlighted as active.
+Active tokens are shown in green color as 'Now Serving'.
+
+When consultation is completed, the token status is updated in real time.

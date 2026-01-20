@@ -1,0 +1,6 @@
+This hospital system is designed to manage patient consultation using a token-based system.
+
+The system supports different user roles such as admin, doctor, and staff.
+Patients are registered by hospital staff.
+Doctors consult patients based on generated tokens.
+Real-time token updates are shown using WebSocket connections.

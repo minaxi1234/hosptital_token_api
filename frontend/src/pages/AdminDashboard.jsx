@@ -19,144 +19,104 @@ import {
 
 import { createUser } from "../api/adminUsers";
 
+/* ================= UI HELPERS (STYLE ONLY) ================= */
+const card = "bg-white rounded-xl border border-slate-200 shadow-sm";
+const cardHeader = "border-b border-slate-200 px-6 py-4";
+const cardBody = "px-6 py-5 space-y-4";
+
+const input =
+  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500";
+
+const btnPrimary =
+  "bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50";
+
+const btnDark =
+  "bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50";
+
+const btnDanger =
+  "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium";
+
 export default function AdminDashboard() {
-  // --------------------
-  // NAVIGATION
-  // --------------------
   const navigate = useNavigate();
 
-  // --------------------
-  // GLOBAL STATE
-  // --------------------
+  /* ================= STATE (UNCHANGED) ================= */
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [manageLoading, setManageLoading] = useState(false);
 
-    // --------------------
-    // GLOBAL UI MESSAGES
-    // --------------------
-    const [successMsg, setSuccessMsg] = useState("");
-    const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  // --------------------
-  // USERS (for dropdown)
-  // --------------------
   const [employees, setEmployees] = useState([]);
-
-  // --------------------
-  // ROLE LISTS (right panel)
-  // --------------------
   const [doctors, setDoctors] = useState([]);
   const [nurses, setNurses] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
 
-  // --------------------
-  // CREATE USER
-  // --------------------
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRoles, setNewRoles] = useState([]);
   const [userSuccess, setUserSuccess] = useState("");
 
-  // --------------------
-  // ADD EMPLOYEE
-  // --------------------
   const [role, setRole] = useState("doctor");
   const [userId, setUserId] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [fee, setFee] = useState("");
   const [department, setDepartment] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
-  // --------------------
-  // MANAGE EMPLOYEE
-  // --------------------
   const [manageRole, setManageRole] = useState("doctor");
   const [roleList, setRoleList] = useState([]);
   const [selectedEntity, setSelectedEntity] = useState("");
-
   const [editSpecialty, setEditSpecialty] = useState("");
   const [editFee, setEditFee] = useState("");
   const [editDepartment, setEditDepartment] = useState("");
 
-
-  
+  /* ================= HELPERS ================= */
   const showSuccess = (msg) => {
-  setSuccessMsg(msg);
-  setErrorMsg("");
-  setTimeout(() => setSuccessMsg(""), 3000);
-};
+    setSuccessMsg(msg);
+    setErrorMsg("");
+    setTimeout(() => setSuccessMsg(""), 3000);
+  };
 
-const showError = (msg) => {
-  setErrorMsg(msg);
-  setSuccessMsg("");
-  setTimeout(() => setErrorMsg(""), 4000);
-};
+  const showError = (msg) => {
+    setErrorMsg(msg);
+    setSuccessMsg("");
+    setTimeout(() => setErrorMsg(""), 4000);
+  };
 
-  // --------------------
-  // LOAD USERS
-  // --------------------
+  /* ================= LOADERS ================= */
   const loadEmployees = async () => {
     setLoading(true);
-    try {
-      const res = await fetchEmployees();
-      setEmployees(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    const res = await fetchEmployees();
+    setEmployees(res.data);
+    setLoading(false);
   };
 
-  // --------------------
-  // LOAD ROLE LISTS (RIGHT PANEL)
-  // --------------------
   const loadRoleLists = async () => {
-    try {
-      const [d, n, s] = await Promise.all([
-        fetchDoctors(),
-        fetchNurses(),
-        fetchStaff(),
-      ]);
-
-      setDoctors(d.data);
-      setNurses(n.data);
-      setStaffMembers(s.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const [d, n, s] = await Promise.all([
+      fetchDoctors(),
+      fetchNurses(),
+      fetchStaff(),
+    ]);
+    setDoctors(d.data);
+    setNurses(n.data);
+    setStaffMembers(s.data);
   };
 
-  // --------------------
-  // LOAD MANAGE LIST
-  // --------------------
   const loadRoleData = async (role) => {
     setManageLoading(true);
-    try {
-      let res;
-      if (role === "doctor") res = await fetchDoctors();
-      if (role === "nurse") res = await fetchNurses();
-      if (role === "staff") res = await fetchStaff();
-
-      setRoleList(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setManageLoading(false);
-    }
+    let res;
+    if (role === "doctor") res = await fetchDoctors();
+    if (role === "nurse") res = await fetchNurses();
+    if (role === "staff") res = await fetchStaff();
+    setRoleList(res.data);
+    setManageLoading(false);
   };
 
-  // --------------------
-  // INITIAL LOAD
-  // --------------------
   useEffect(() => {
     loadEmployees();
     loadRoleLists();
   }, []);
 
-  // --------------------
-  // MANAGE ROLE CHANGE
-  // --------------------
   useEffect(() => {
     loadRoleData(manageRole);
     setSelectedEntity("");
@@ -165,13 +125,10 @@ const showError = (msg) => {
     setEditDepartment("");
   }, [manageRole]);
 
-  // --------------------
-  // SELECT ENTITY
-  // --------------------
+  /* ================= ACTIONS ================= */
   const handleSelectEntity = (id) => {
     const entity = roleList.find((e) => e.id === id);
     setSelectedEntity(id);
-
     if (!entity) return;
 
     if (manageRole === "doctor") {
@@ -182,9 +139,6 @@ const showError = (msg) => {
     }
   };
 
-  // --------------------
-  // UPDATE
-  // --------------------
   const handleUpdate = async () => {
     try {
       if (manageRole === "doctor") {
@@ -193,62 +147,38 @@ const showError = (msg) => {
           consultation_fee: Number(editFee),
         });
       }
-
       if (manageRole === "nurse") {
-        await updateNurse(selectedEntity, {
-          department: editDepartment,
-        });
+        await updateNurse(selectedEntity, { department: editDepartment });
       }
-
       if (manageRole === "staff") {
-        await updateStaff(selectedEntity, {
-          department: editDepartment,
-        });
+        await updateStaff(selectedEntity, { department: editDepartment });
       }
-
       showSuccess("Updated successfully");
       loadRoleData(manageRole);
       loadEmployees();
-    } catch (err) {
-      console.error(err);
+    } catch {
       showError("Update failed");
     }
   };
 
-  // --------------------
-  // DELETE
-  // --------------------
   const handleDelete = async () => {
     if (!window.confirm("Are you sure?")) return;
-
     try {
       if (manageRole === "doctor") await deleteDoctor(selectedEntity);
       if (manageRole === "nurse") await deleteNurse(selectedEntity);
       if (manageRole === "staff") await deleteStaff(selectedEntity);
-
       showSuccess("Deleted successfully");
       setSelectedEntity("");
       loadRoleData(manageRole);
       loadEmployees();
-    } catch (err) {
-  console.error(err);
-
-  const message =
-    err.response?.data?.detail ||
-    "Delete failed";
-
-  showError(message);
-}
-
+    } catch {
+      showError("Delete failed");
+    }
   };
 
-  // --------------------
-  // CREATE USER
-  // --------------------
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
     try {
       const res = await createUser({
         email: newEmail,
@@ -256,29 +186,21 @@ const showError = (msg) => {
         roles: newRoles,
         is_active: true,
       });
-
-      setEmployees((prev) => [...prev, res.data]);
+      setEmployees((p) => [...p, res.data]);
       setNewEmail("");
       setNewPassword("");
       setNewRoles([]);
-
-      setUserSuccess("User created successfully!");
-      setTimeout(() => setUserSuccess(""), 3000);
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      showError("Failed to create user");
+      showSuccess("User created successfully");
+    } catch {
+      showError("User creation failed");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // --------------------
-  // ADD EMPLOYEE
-  // --------------------
   const handleAddEmployee = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
     try {
       if (role === "doctor") {
         await createDoctor({
@@ -287,332 +209,236 @@ const showError = (msg) => {
           consultation_fee: Number(fee),
         });
       }
-
       if (role === "nurse") {
         await createNurse({ user_id: userId, department });
       }
-
       if (role === "staff") {
         await createStaff({ user_id: userId, department });
       }
-
-      setSuccessMessage(`${role} added successfully!`);
-      setTimeout(() => setSuccessMessage(""), 3000);
-
+      showSuccess(`${role} added successfully`);
       setUserId("");
       setSpecialty("");
       setFee("");
       setDepartment("");
-
       loadEmployees();
       loadRoleLists();
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      showError("Failed to add employee");
+    } catch {
+      showError("Add employee failed");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // --------------------
-  // LOGOUT
-  // --------------------
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
   };
 
   if (loading) {
-    return <p className="text-center mt-20 text-slate-500">Loading employees...</p>;
+    return <p className="text-center mt-20 text-slate-500">Loading...</p>;
   }
 
-
-
+  /* ================= UI ================= */
   return (
-  <div className="min-h-screen bg-slate-100">
-    {/* Header */}
-    <header className="bg-emerald-700 text-white px-6 py-4 flex justify-between items-center shadow">
-      <div>
-        <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-        <p className="text-sm text-emerald-100">
-          Hospital staff & token management
-        </p>
-      </div>
-      <button
-        onClick={handleLogout}
-        className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-md text-sm"
-      >
-        Logout
-      </button>
-    </header>
-
-    {/* Main Content */}
-    <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      {successMsg && (
-      <div className="mb-4 rounded-md bg-emerald-100 border border-emerald-300 px-4 py-2 text-emerald-800 text-sm">
-        {successMsg}
-      </div>
-    )}
-
-    {errorMsg && (
-      <div className="mb-4 rounded-md bg-red-100 border border-red-300 px-4 py-2 text-red-800 text-sm">
-        {errorMsg}
-      </div>
-    )}
-
-
-      {/* LEFT PANEL */}
-      <div className="space-y-6">
-        
-        {/* Create User */}
-        <section className="bg-white rounded-lg shadow p-5">
-          <h2 className="text-lg font-semibold mb-4">Create User</h2>
-
-          {userSuccess && (
-            <div className="mb-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded p-2">
-              {userSuccess}
-            </div>
-          )}
-
-          <form onSubmit={handleCreateUser} className="space-y-3">
-            <input
-              placeholder="Email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-              required
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-              required
-            />
-
-            <select
-            value={newRoles[0] || ""}
-            onChange={(e) => setNewRoles([e.target.value])}
-            required
-            className="w-full border rounded px-3 py-2 text-sm"
-          >
-            <option value="" disabled>
-              Select role
-            </option>
-            <option value="admin">Admin</option>
-            <option value="doctor">Doctor</option>
-            <option value="nurse">Nurse</option>
-            <option value="staff">Staff</option>
-          </select>
-
-
+    <div className="min-h-screen bg-slate-100">
+      {/* HEADER */}
+      <header className="bg-emerald-700 text-white shadow">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-semibold">Admin Dashboard</h1>
+            <p className="text-sm text-emerald-100">
+              Hospital staff & token management
+            </p>
+          </div>
+          <div className="flex gap-3">
             <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded text-sm"
+              onClick={() => navigate("/assistant")}
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm"
             >
-              {submitting ? "Creating..." : "Create User"}
+              Assistant
             </button>
-          </form>
-        </section>
-
-        {/* Add Employee */}
-        <section className="bg-white rounded-lg shadow p-5">
-          <h2 className="text-lg font-semibold mb-4">Add Employee</h2>
-
-          {successMessage && (
-            <div className="mb-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded p-2">
-              {successMessage}
-            </div>
-          )}
-
-          <form onSubmit={handleAddEmployee} className="space-y-3">
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-            >
-              <option value="doctor">Doctor</option>
-              <option value="nurse">Nurse</option>
-              <option value="staff">Staff</option>
-            </select>
-
-            <select
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm"
-              required
-            >
-              <option value="">Select User</option>
-              {employees.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.email}
-                </option>
-              ))}
-            </select>
-
-            {role === "doctor" && (
-              <>
-                <input
-                  placeholder="Specialty"
-                  value={specialty}
-                  onChange={(e) => setSpecialty(e.target.value)}
-                  className="w-full border rounded px-3 py-2 text-sm"
-                  required
-                />
-                <input
-                  type="number"
-                  placeholder="Consultation Fee"
-                  value={fee}
-                  onChange={(e) => setFee(e.target.value)}
-                  className="w-full border rounded px-3 py-2 text-sm"
-                  required
-                />
-              </>
-            )}
-
-            {(role === "nurse" || role === "staff") && (
-              <input
-                placeholder="Department"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className="w-full border rounded px-3 py-2 text-sm"
-                required
-              />
-            )}
-
             <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded text-sm"
+              onClick={handleLogout}
+              className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-md text-sm"
             >
-              Add {role}
+              Logout
             </button>
-          </form>
-        </section>
+          </div>
+        </div>
+      </header>
 
-        <section className="bg-white rounded-lg shadow p-5">
-  <h2 className="text-lg font-semibold mb-4">Manage Employee</h2>
-
-  <select
-    value={manageRole}
-    onChange={(e) => setManageRole(e.target.value)}
-    className="w-full border rounded px-3 py-2 text-sm mb-3"
-  >
-    <option value="doctor">Doctor</option>
-    <option value="nurse">Nurse</option>
-    <option value="staff">Staff</option>
-  </select>
-
-  <select
-    value={selectedEntity}
-    onChange={(e) => handleSelectEntity(e.target.value)}
-    className="w-full border rounded px-3 py-2 text-sm mb-3"
-  >
-    <option value="">Select</option>
-    {roleList.map((e) => (
-      <option key={e.id} value={e.id}>
-        {e.email || "Employee"}
-      </option>
-    ))}
-  </select>
-
-  {selectedEntity && manageRole === "doctor" && (
-    <>
-      <input
-        className="w-full border rounded px-3 py-2 text-sm mb-2"
-        value={editSpecialty}
-        onChange={(e) => setEditSpecialty(e.target.value)}
-        placeholder="Specialty"
-      />
-      <input
-        type="number"
-        className="w-full border rounded px-3 py-2 text-sm mb-2"
-        value={editFee}
-        onChange={(e) => setEditFee(e.target.value)}
-        placeholder="Consultation Fee"
-      />
-    </>
-  )}
-
-  {selectedEntity && manageRole !== "doctor" && (
-    <input
-      className="w-full border rounded px-3 py-2 text-sm mb-2"
-      value={editDepartment}
-      onChange={(e) => setEditDepartment(e.target.value)}
-      placeholder="Department"
-    />
-  )}
-
-  <div className="flex gap-2 mt-3">
-    <button
-      onClick={handleUpdate}
-      className="flex-1 bg-emerald-600 text-white py-2 rounded text-sm"
-    >
-      Update
-    </button>
-    <button
-      onClick={handleDelete}
-      className="flex-1 bg-red-600 text-white py-2 rounded text-sm"
-    >
-      Delete
-    </button>
-  </div>
-</section>
-
+      {/* MESSAGES */}
+      <div className="max-w-7xl mx-auto px-6 mt-4 space-y-2">
+        {successMsg && (
+          <div className="bg-emerald-100 text-emerald-800 border border-emerald-300 rounded px-4 py-2 text-sm">
+            {successMsg}
+          </div>
+        )}
+        {errorMsg && (
+          <div className="bg-red-100 text-red-800 border border-red-300 rounded px-4 py-2 text-sm">
+            {errorMsg}
+          </div>
+        )}
       </div>
 
-      {/* RIGHT PANEL */}
-      <section className="lg:col-span-2 bg-white rounded-lg shadow p-6 space-y-8">
-        <h2 className="text-lg font-semibold">Employees</h2>
-
-        {/* Doctors */}
-        <div>
-          <h3 className="font-medium text-slate-700 mb-3">Doctors</h3>
-          <div className="space-y-2">
-          {doctors.map((d) => (
-          <div key={d.id} className="flex justify-between border p-2">
-            <span>{d.email}</span>
-            <span>{d.specialty} · ₹{d.consultation_fee}</span>
-          </div>
-        ))}
-
-          </div>
-        </div>
-
-        {/* Nurses */}
-        <div>
-          <h3 className="font-medium text-slate-700 mb-3">Nurses</h3>
-          <div className="space-y-2">
-            {nurses.map((n) => (
-            <div key={n.id} className="flex justify-between border p-2">
-              <span>{n.email}</span>
-              <span>{n.department}</span>
+      <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* LEFT PANEL */}
+        <div className="space-y-6">
+          {/* CREATE USER */}
+          <section className={card}>
+            <div className={cardHeader}>
+              <h2 className="font-semibold">Create User</h2>
             </div>
-          ))}
+            <div className={cardBody}>
+              <form onSubmit={handleCreateUser} className="space-y-3">
+                <input className={input} placeholder="Email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                <input className={input} type="password" placeholder="Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <select className={input} value={newRoles[0] || ""} onChange={(e) => setNewRoles([e.target.value])}>
+                  <option value="">Select role</option>
+                  <option value="admin">Admin</option>
+                  <option value="doctor">Doctor</option>
+                  <option value="nurse">Nurse</option>
+                  <option value="staff">Staff</option>
+                </select>
+                <button className={`w-full ${btnPrimary}`} disabled={submitting}>
+                  Create User
+                </button>
+              </form>
+            </div>
+          </section>
 
-          </div>
+          {/* ADD EMPLOYEE */}
+          <section className={card}>
+            <div className={cardHeader}>
+              <h2 className="font-semibold">Add Employee</h2>
+            </div>
+            <div className={cardBody}>
+              <form onSubmit={handleAddEmployee} className="space-y-3">
+                <select className={input} value={role} onChange={(e) => setRole(e.target.value)}>
+                  <option value="doctor">Doctor</option>
+                  <option value="nurse">Nurse</option>
+                  <option value="staff">Staff</option>
+                </select>
+
+                <select className={input} value={userId} onChange={(e) => setUserId(e.target.value)}>
+                  <option value="">Select User</option>
+                  {employees.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.email}
+                    </option>
+                  ))}
+                </select>
+
+                {role === "doctor" && (
+                  <>
+                    <input className={input} placeholder="Specialty" value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+                    <input className={input} type="number" placeholder="Consultation Fee" value={fee} onChange={(e) => setFee(e.target.value)} />
+                  </>
+                )}
+
+                {(role === "nurse" || role === "staff") && (
+                  <input className={input} placeholder="Department" value={department} onChange={(e) => setDepartment(e.target.value)} />
+                )}
+
+                <button className={`w-full ${btnDark}`} disabled={submitting}>
+                  Add {role}
+                </button>
+              </form>
+            </div>
+          </section>
+
+          {/* MANAGE EMPLOYEE */}
+          <section className={card}>
+            <div className={cardHeader}>
+              <h2 className="font-semibold">Manage Employee</h2>
+            </div>
+            <div className={cardBody}>
+              <select className={input} value={manageRole} onChange={(e) => setManageRole(e.target.value)}>
+                <option value="doctor">Doctor</option>
+                <option value="nurse">Nurse</option>
+                <option value="staff">Staff</option>
+              </select>
+
+              <select className={input} value={selectedEntity} onChange={(e) => handleSelectEntity(e.target.value)}>
+                <option value="">Select</option>
+                {roleList.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.email}
+                  </option>
+                ))}
+              </select>
+
+              {selectedEntity && manageRole === "doctor" && (
+                <>
+                  <input className={input} value={editSpecialty} onChange={(e) => setEditSpecialty(e.target.value)} placeholder="Specialty" />
+                  <input className={input} type="number" value={editFee} onChange={(e) => setEditFee(e.target.value)} placeholder="Consultation Fee" />
+                </>
+              )}
+
+              {selectedEntity && manageRole !== "doctor" && (
+                <input className={input} value={editDepartment} onChange={(e) => setEditDepartment(e.target.value)} placeholder="Department" />
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button onClick={handleUpdate} className={`flex-1 ${btnPrimary}`}>
+                  Update
+                </button>
+                <button onClick={handleDelete} className={`flex-1 ${btnDanger}`}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
 
-        {/* Staff */}
-        <div>
-          <h3 className="font-medium text-slate-700 mb-3">Staff</h3>
-          <div className="space-y-2">
-           {staffMembers.map((s) => (
-          <div key={s.id} className="flex justify-between border p-2">
-            <span>{s.email}</span>
-            <span>{s.department}</span>
+        {/* RIGHT PANEL */}
+        <section className="lg:col-span-2 space-y-6">
+          {/* STATS */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className={card}><div className={cardBody}><p className="text-sm text-slate-500">Doctors</p><p className="text-2xl font-semibold">{doctors.length}</p></div></div>
+            <div className={card}><div className={cardBody}><p className="text-sm text-slate-500">Nurses</p><p className="text-2xl font-semibold">{nurses.length}</p></div></div>
+            <div className={card}><div className={cardBody}><p className="text-sm text-slate-500">Staff</p><p className="text-2xl font-semibold">{staffMembers.length}</p></div></div>
           </div>
-        ))}
 
+          {/* LISTS */}
+          <div className={card}>
+            <div className={cardHeader}>
+              <h2 className="font-semibold">Employees</h2>
+            </div>
+            <div className="px-6 py-4 space-y-6">
+              <div>
+                <h3 className="font-medium mb-2">Doctors</h3>
+                {doctors.map((d) => (
+                  <div key={d.id} className="flex justify-between text-sm border-b py-2">
+                    <span>{d.email}</span>
+                    <span>{d.specialty} · ₹{d.consultation_fee}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-2">Nurses</h3>
+                {nurses.map((n) => (
+                  <div key={n.id} className="flex justify-between text-sm border-b py-2">
+                    <span>{n.email}</span>
+                    <span>{n.department}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-2">Staff</h3>
+                {staffMembers.map((s) => (
+                  <div key={s.id} className="flex justify-between text-sm border-b py-2">
+                    <span>{s.email}</span>
+                    <span>{s.department}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
-  </div>
-);
-
+        </section>
+      </main>
+    </div>
+  );
 }

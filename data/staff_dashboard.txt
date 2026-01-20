@@ -1,0 +1,6 @@
+Staff members can view all generated tokens in their dashboard.
+
+Staff can register new patients.
+Staff can assign doctors and generate tokens for patients.
+
+Generated tokens appear immediately in the doctor dashboard.

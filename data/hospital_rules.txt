@@ -1,0 +1,7 @@
+Patients must arrive before their token number is called.
+
+If a patient misses their token, the token may be skipped.
+Only staff members are allowed to generate tokens.
+Patients must wait in the waiting area until their token is active.
+
+Doctors handle patients based on token order except in emergency cases.

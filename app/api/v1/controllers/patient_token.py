@@ -1,4 +1,5 @@
 from datetime import datetime, time
+import json
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -11,12 +12,12 @@ from datetime import date
 from app.db.session import get_db
 from app.models.patient import Patient
 from app.models.token import Token, TokenStatus
-from app.models.doctor import Doctor
 from app.api.v1.schemas.patient_token import PatientCreate, PatientRead, TokenCreate, TokenRead, TokenUpdateStatus
-from app.models.user import User
+
 from app.core.rbac import require_roles # our RBAC decorator
 from app.core.websocket_manager import websocket_manager
-import asyncio
+from app.core.redis import redis_client
+
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
@@ -87,6 +88,14 @@ async def create_token(data: TokenCreate, db: Session = Depends(get_db), current
     db.add(token)
     db.commit()
     db.refresh(token)
+ 
+    try:
+        redis_client.rpush(
+          f"doctor:{doctor.id}:tokens",
+            str(token.id)  
+        )
+    except Exception:
+        pass
 
    
     await websocket_manager.broadcast({
@@ -100,9 +109,6 @@ async def create_token(data: TokenCreate, db: Session = Depends(get_db), current
     })
 
     
-   
-    
-    
     
     return token
 
@@ -115,7 +121,7 @@ def doctor_tokens(current_user: User = Depends(require_roles(["doctor"])), db: S
     doctor = db.query(Doctor).filter(Doctor.user_id == current_user.id).first()
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor profile not found")
-
+    
     tokens = db.query(Token).filter(Token.doctor_id == doctor.id).order_by(Token.created_at.asc()).all()
     return tokens
 
@@ -143,6 +149,18 @@ async def update_token_status(
     token.status = update.status
     db.commit()
     db.refresh(token)
+
+    redis_key = f"token:{token.doctor_id}"
+
+    redis_client.set(
+        redis_key,
+        json.dumps({
+            "token_id": str(token.id),
+            "token_number": token.token_number,
+            "status": token.status,
+            "updated_at": datetime.utcnow().isoformat()
+        })
+    )
 
     # ✅ SAFE WebSocket broadcast (NO 500 possible)
     await websocket_manager.broadcast({

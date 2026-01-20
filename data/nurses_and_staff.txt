@@ -1,0 +1,9 @@
+Nurses are assigned to different hospital units.
+
+Examples of nurse assignments include:
+- Cardiology
+- Casualty
+- General Ward
+- Operation Theater
+
+Staff members support hospital operations such as patient registration and token generation.

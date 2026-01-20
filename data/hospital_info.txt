@@ -1,0 +1,5 @@
+Emergency services are available 24 hours a day.
+The hospital is closed on Sundays except for emergency.
+Emergency services are available 24 hours a day.
+The hospital is open on weekends.
+Night duty doctors are available after 8 PM.

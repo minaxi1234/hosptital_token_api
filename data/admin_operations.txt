@@ -1,0 +1,7 @@
+Admins can log into the admin dashboard.
+
+Admins can create users and assign roles such as doctor or staff.
+Admins can create and manage departments and specialties.
+Admins can delete or update roles, departments, and specialties.
+
+The admin dashboard shows the total number of doctors, nurses, and staff members.
